@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Konverter - Ujang Laser Converter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .converter-section { max-width: 900px; margin: 0 auto; padding-bottom: 4rem; }
+    .converter-card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 3rem; backdrop-filter: blur(20px); }
+    .drop-zone { border: 2px dashed var(--glass-border); border-radius: 16px; padding: 3rem; text-align: center; cursor: pointer; transition: all 0.3s ease; margin-bottom: 2rem; }
+    .drop-zone:hover { border-color: var(--primary-green); background: rgba(74, 222, 128, 0.05); }
+    .drop-zone.dragover { border-color: var(--primary-green); background: rgba(74, 222, 128, 0.1); }
+    .drop-zone-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .drop-zone p { color: rgba(255, 255, 255, 0.6); margin-bottom: 0.5rem; }
+    .drop-zone .formats { font-size: 0.85rem; color: rgba(255, 255, 255, 0.4); }
+    .options-row { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .option-group { flex: 1; min-width: 200px; }
+    .option-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: rgba(255, 255, 255, 0.8); }
+    .option-group select, .option-group input { width: 100%; padding: 0.875rem 1rem; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(255, 255, 255, 0.05); color: #fff; font-size: 1rem; outline: none; transition: border-color 0.3s ease; }
+    .option-group select:focus, .option-group input:focus { border-color: var(--primary-green); }
+    .option-group select option { background: var(--dark-gray); }
+    .file-list { margin-bottom: 2rem; }
+    .file-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 0.5rem; }
+    .file-item-icon { font-size: 1.5rem; }
+    .file-item-info { flex: 1; }
+    .file-item-name { font-weight: 600; margin-bottom: 0.25rem; }
+    .file-item-size { font-size: 0.85rem; color: rgba(255, 255, 255, 0.5); }
+    .file-item-remove { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.25rem; padding: 0.5rem; transition: transform 0.2s ease; }
+    .file-item-remove:hover { transform: scale(1.2); }
+    .convert-btn { width: 100%; padding: 1rem; font-size: 1.1rem; }
+    .progress-container { display: none; margin-top: 2rem; }
+    .progress-container.active { display: block; }
+    .progress-bar { height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; margin-bottom: 1rem; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary-green), var(--light-green)); border-radius: 4px; transition: width 0.3s ease; width: 0%; }
+    .progress-text { text-align: center; color: rgba(255, 255, 255, 0.6); }
+    .result-section { display: none; margin-top: 2rem; }
+    .result-section.active { display: block; animation: fadeInUp 0.5s ease; }
+    .result-download { display: inline-flex; align-items: center; gap: 0.5rem; padding: 1rem 2rem; margin-top: 1rem; }
+    .result-stats { display: flex; justify-content: center; gap: 2rem; margin-top: 1.5rem; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px; flex-wrap: wrap; }
+    .stat-item { text-align: center; }
+    .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--primary-green); }
+    .stat-label { font-size: 0.85rem; color: rgba(255, 255, 255, 0.5); }
+    #fileInput { display: none; }
+    .converter-types { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .converter-type { background: var(--glass-bg); border: 2px solid var(--glass-border); border-radius: 12px; padding: 1.25rem; text-align: center; cursor: pointer; transition: all 0.3s ease; }
+    .converter-type:hover { border-color: var(--primary-green); }
+    .converter-type.active { border-color: var(--primary-green); background: rgba(74, 222, 128, 0.1); }
+    .converter-type-icon { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    .converter-type h4 { font-size: 0.95rem; font-weight: 600; }
+    .converter-type p { font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); margin-top: 0.25rem; }
+    .bulk-info { font-size: 0.85rem; color: rgba(255, 255, 255, 0.5); margin-bottom: 1rem; text-align: center; }
+    .download-all-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.875rem 1.5rem; margin-left: 1rem; }
+    .result-files { margin-top: 1.5rem; }
+    .result-file-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px; margin-bottom: 0.5rem; }
+    .result-file-item-icon { font-size: 1.5rem; }
+    .result-file-item-info { flex: 1; }
+    .result-file-item-name { font-weight: 600; margin-bottom: 0.25rem; }
+    .result-file-item-size { font-size: 0.85rem; color: var(--primary-green); }
+    .result-file-item-download { background: none; border: 1px solid var(--glass-border); color: #fff; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
+    .result-file-item-download:hover { border-color: var(--primary-green); background: rgba(74, 222, 128, 0.1); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <span class="logo-text">Ujang Laser Converter</span>
+    </div>
+    <nav>
+      <a href="index.html">Beranda</a>
+      <a href="converter.html" class="active">Konverter</a>
+      <a href="about.html">Tentang</a>
+      <a href="contact.html">Kontak</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Konversi File<br><span>Sekarang</span></h1>
+      <p>Pilih jenis konversi yang Anda butuhkan dan upload file dengan mudah.</p>
+    </section>
+
+    <section class="converter-section">
+      <div class="converter-card">
+        <div class="converter-types">
+          <div class="converter-type active" data-type="towebp" data-bulk="true">
+            <div class="converter-type-icon">🖼️</div>
+            <h4>Gambar ke WebP</h4>
+            <p>JPG, PNG, GIF → WebP</p>
+          </div>
+          <div class="converter-type" data-type="fromwebp" data-bulk="false">
+            <div class="converter-type-icon">📄</div>
+            <h4>WebP ke Gambar</h4>
+            <p>WebP → JPG, PNG</p>
+          </div>
+          <div class="converter-type" data-type="compress" data-bulk="true">
+            <div class="converter-type-icon">📉</div>
+            <h4>Kompresi Gambar</h4>
+            <p>Perkecil ukuran file</p>
+          </div>
+          <div class="converter-type" data-type="pdf" data-bulk="false">
+            <div class="converter-type-icon">📑</div>
+            <h4>Image ke PDF</h4>
+            <p>Gambar → PDF</p>
+          </div>
+        </div>
+
+        <p class="bulk-info" id="bulkInfo">Mendukung upload beberapa file sekaligus</p>
+
+        <div class="drop-zone" id="dropZone">
+          <div class="drop-zone-icon">📁</div>
+          <p>Drag & drop file di sini atau klik untuk memilih</p>
+          <span class="formats" id="formatInfo">Mendukung: JPG, PNG, GIF, BMP → WebP</span>
+          <input type="file" id="fileInput" accept="image/*" multiple>
+        </div>
+
+        <div class="file-list" id="fileList"></div>
+
+        <div class="options-row" id="optionsRow">
+          <div class="option-group" id="outputFormatGroup" style="display: none;">
+            <label>Format Output</label>
+            <select id="outputFormat">
+              <option value="jpeg">JPEG</option>
+              <option value="png">PNG</option>
+            </select>
+          </div>
+          <div class="option-group" id="qualityGroup">
+            <label>Kualitas (1-100)</label>
+            <input type="number" id="quality" value="80" min="1" max="100">
+          </div>
+          <div class="option-group" id="compressionGroup" style="display: none;">
+            <label>Target Ukuran (KB)</label>
+            <input type="number" id="targetSize" value="500" min="10" max="5000">
+          </div>
+        </div>
+
+        <button class="btn btn-primary convert-btn" id="convertBtn" disabled>
+          Konversi Sekarang ⚡
+        </button>
+
+        <div class="progress-container" id="progressContainer">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <p class="progress-text" id="progressText">Mengonversi...</p>
+        </div>
+
+        <div class="result-section" id="resultSection">
+          <div class="card-icon" style="margin: 0 auto 1rem; width: 60px; height: 60px;">✅</div>
+          <h3 style="margin-bottom: 1rem; text-align: center;">Konversi Berhasil!</h3>
+          <div style="text-align: center;">
+            <button class="btn btn-primary result-download" id="downloadBtn">Download</button>
+            <button class="btn btn-secondary download-all-btn" id="downloadAllBtn" style="display: none;">Download Semua ⬇️</button>
+          </div>
+          <div class="result-stats" id="resultStats">
+            <div class="stat-item">
+              <div class="stat-value" id="originalSize">0 KB</div>
+              <div class="stat-label">Total Ukuran Awal</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="convertedSize">0 KB</div>
+              <div class="stat-label">Total Ukuran Hasil</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="savedPercent">0%</div>
+              <div class="stat-label">Penghematan</div>
+            </div>
+          </div>
+          <div class="result-files" id="resultFiles"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-logo">
+        <div class="logo-icon">⚡</div>
+        <span class="logo-text">Ujang Laser Converter</span>
+      </div>
+      <div class="footer-links">
+        <h4>Tautan Cepat</h4>
+        <a href="index.html">Beranda</a>
+        <a href="converter.html">Konverter</a>
+        <a href="about.html">Tentang</a>
+        <a href="contact.html">Kontak</a>
+      </div>
+      <div class="footer-links">
+        <h4>Layanan</h4>
+        <a href="converter.html">Konversi WebP</a>
+        <a href="converter.html">Kompresi Gambar</a>
+        <a href="converter.html">Image ke PDF</a>
+      </div>
+      <div class="footer-contact">
+        <h4>Kontak</h4>
+        <p>📧 info@ujanglaser.com</p>
+        <p>📞 +62 123 4567 890</p>
+        <p>📍 Jakarta, Indonesia</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Ujang Laser Converter. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    const convertBtn = document.getElementById('convertBtn');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const resultSection = document.getElementById('resultSection');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const downloadAllBtn = document.getElementById('downloadAllBtn');
+    const outputFormat = document.getElementById('outputFormat');
+    const quality = document.getElementById('quality');
+    const targetSize = document.getElementById('targetSize');
+    const formatInfo = document.getElementById('formatInfo');
+    const bulkInfo = document.getElementById('bulkInfo');
+    const converterTypes = document.querySelectorAll('.converter-type');
+    const outputFormatGroup = document.getElementById('outputFormatGroup');
+    const qualityGroup = document.getElementById('qualityGroup');
+    const compressionGroup = document.getElementById('compressionGroup');
+    const resultFiles = document.getElementById('resultFiles');
+
+    let selectedFiles = [];
+    let convertedFiles = [];
+    let currentConverterType = 'towebp';
+    let isBulk = true;
+
+    converterTypes.forEach(type => {
+      type.addEventListener('click', () => {
+        converterTypes.forEach(t => t.classList.remove('active'));
+        type.classList.add('active');
+        currentConverterType = type.dataset.type;
+        isBulk = type.dataset.bulk === 'true';
+        updateConverterOptions();
+        clearFiles();
+      });
+    });
+
+    function updateConverterOptions() {
+      bulkInfo.style.display = isBulk ? 'block' : 'none';
+      fileInput.multiple = isBulk;
+      
+      if (currentConverterType === 'towebp') {
+        formatInfo.textContent = 'Mendukung: JPG, PNG, GIF, BMP → WebP';
+        outputFormatGroup.style.display = 'none';
+        qualityGroup.style.display = 'block';
+        compressionGroup.style.display = 'none';
+      } else if (currentConverterType === 'fromwebp') {
+        formatInfo.textContent = 'Mendukung: WebP → JPG, PNG';
+        outputFormatGroup.style.display = 'block';
+        qualityGroup.style.display = 'none';
+        compressionGroup.style.display = 'none';
+      } else if (currentConverterType === 'compress') {
+        formatInfo.textContent = 'Kompresi: JPG, PNG → JPG/PNG lebih kecil';
+        outputFormatGroup.style.display = 'block';
+        qualityGroup.style.display = 'none';
+        compressionGroup.style.display = 'block';
+        outputFormat.innerHTML = '<option value="jpeg">JPEG</option><option value="png">PNG</option>';
+      } else if (currentConverterType === 'pdf') {
+        formatInfo.textContent = 'Konversi: JPG, PNG → PDF';
+        outputFormatGroup.style.display = 'none';
+        qualityGroup.style.display = 'none';
+        compressionGroup.style.display = 'none';
+      }
+    }
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('dragover'); });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      handleFiles(isBulk ? e.dataTransfer.files : [e.dataTransfer.files[0]]);
+    });
+    fileInput.addEventListener('change', (e) => { handleFiles(isBulk ? e.target.files : [e.target.files[0]]); });
+
+    function handleFiles(files) {
+      const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+      if (validFiles.length === 0) { alert('Silakan pilih file gambar!'); return; }
+      
+      if (isBulk) {
+        selectedFiles = [...selectedFiles, ...validFiles];
+      } else {
+        selectedFiles = [validFiles[0]];
+      }
+      renderFileList();
+    }
+
+    function renderFileList() {
+      fileList.innerHTML = selectedFiles.map((file, index) => `
+        <div class="file-item">
+          <span class="file-item-icon">🖼️</span>
+          <div class="file-item-info">
+            <div class="file-item-name">${file.name}</div>
+            <div class="file-item-size">${formatFileSize(file.size)}</div>
+          </div>
+          <button class="file-item-remove" onclick="removeFile(${index})">✕</button>
+        </div>
+      `).join('');
+      convertBtn.disabled = selectedFiles.length === 0;
+      resultSection.classList.remove('active');
+    }
+
+    window.removeFile = function(index) { selectedFiles.splice(index, 1); renderFileList(); };
+    function clearFiles() { selectedFiles = []; fileList.innerHTML = ''; convertBtn.disabled = true; resultSection.classList.remove('active'); }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024; const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    convertBtn.addEventListener('click', async () => {
+      if (selectedFiles.length === 0) return;
+      progressContainer.classList.add('active');
+      convertBtn.disabled = true;
+      resultSection.classList.remove('active');
+      convertedFiles = [];
+
+      let totalOriginal = 0, totalConverted = 0;
+      resultFiles.innerHTML = '';
+
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const progress = ((i + 1) / selectedFiles.length) * 100;
+        progressFill.style.width = progress + '%';
+        progressText.textContent = `Mengonversi ${i + 1}/${selectedFiles.length}...`;
+
+        try {
+          const formData = new FormData();
+          formData.append('file', selectedFiles[i]);
+          formData.append('converterType', currentConverterType);
+          formData.append('format', outputFormat.value);
+          formData.append('quality', quality.value);
+          formData.append('targetSize', targetSize.value);
+          if (selectedFiles.length > 1) formData.append('batchIndex', i);
+
+          const response = await fetch('/convert', { method: 'POST', body: formData });
+          if (!response.ok) throw new Error('Konversi gagal');
+
+          const blob = await response.blob();
+          totalOriginal += selectedFiles[i].size;
+          totalConverted += blob.size;
+
+          let ext;
+          if (currentConverterType === 'towebp') ext = 'webp';
+          else if (currentConverterType === 'pdf') ext = 'pdf';
+          else ext = outputFormat.value;
+          
+          const filename = selectedFiles[i].name.replace(/\.[^/.]+$/, '') + '.' + ext;
+          convertedFiles.push({ blob, filename });
+
+          if (selectedFiles.length > 1) {
+            resultFiles.innerHTML += `
+              <div class="result-file-item">
+                <span class="result-file-item-icon">🖼️</span>
+                <div class="result-file-item-info">
+                  <div class="result-file-item-name">${filename}</div>
+                  <div class="result-file-item-size">${formatFileSize(blob.size)}</div>
+                </div>
+                <button class="result-file-item-download" onclick="downloadSingleFile(${convertedFiles.length - 1})">⬇️</button>
+              </div>
+            `;
+          }
+        } catch (error) {
+          console.error(error);
+          alert('Gagal mengonversi ' + selectedFiles[i].name);
+        }
+      }
+
+      progressFill.style.width = '100%';
+      progressText.textContent = 'Selesai!';
+
+      setTimeout(() => {
+        progressContainer.classList.remove('active');
+        progressFill.style.width = '0%';
+        
+        document.getElementById('originalSize').textContent = formatFileSize(totalOriginal);
+        document.getElementById('convertedSize').textContent = formatFileSize(totalConverted);
+        const saved = totalOriginal > 0 ? ((totalOriginal - totalConverted) / totalOriginal * 100) : 0;
+        document.getElementById('savedPercent').textContent = saved.toFixed(1) + '%';
+        
+        downloadBtn.textContent = selectedFiles.length === 1 ? 'Download ⬇️' : 'Download Semua';
+        downloadAllBtn.style.display = selectedFiles.length > 1 ? 'inline-flex' : 'none';
+        
+        if (selectedFiles.length === 1) {
+          resultFiles.innerHTML = `
+            <div class="result-file-item">
+              <span class="result-file-item-icon">🖼️</span>
+              <div class="result-file-item-info">
+                <div class="result-file-item-name">${convertedFiles[0].filename}</div>
+                <div class="result-file-item-size">${formatFileSize(totalConverted)}</div>
+              </div>
+            </div>
+          `;
+        }
+        
+        resultSection.classList.add('active');
+        convertBtn.disabled = false;
+      }, 500);
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      if (selectedFiles.length === 1 && convertedFiles[0]) {
+        downloadSingleFile(0);
+      } else {
+        downloadAllFiles();
+      }
+    });
+
+    window.downloadSingleFile = function(index) {
+      const file = convertedFiles[index];
+      if (!file) return;
+      const url = URL.createObjectURL(file.blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    downloadAllFiles.addEventListener('click', () => { convertedFiles.forEach((f, i) => setTimeout(() => downloadSingleFile(i), i * 200)); });
+  </script>
+</body>
+</html>

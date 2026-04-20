@@ -5,6 +5,8 @@ const dewebp=require('./dwebp.js');//get dwebp module(converts webp format to ot
 const gifwebp=require('./gwebp.js');//get gif2webp module(convert git image to webp)
 const webpmux=require('./webpmux.js');//get webpmux module(convert non animated webp images to animated webp)
 const buffer_utils = require('./buffer_utils.js');//get buffer utilities
+const metadata = require('./metadata.js');//get metadata module
+const faceblur = require('./faceblur.js');//get faceblur module
 
 //permission issue in Linux and macOS
 module.exports.grant_permission = () => {
@@ -221,11 +223,39 @@ const query = `-get frame ${frame_number} "${input_image}" -o "${output_image}"`
 //webpmux() return which platform webp library should be used for conversion
 return new Promise((resolve, reject) => {
   //execute command
-exec(`"${webpmux()}"`,query.split(/\s+/),{ shell: true }, (error, stdout, stderr) => {
+ exec(`"${webpmux()}"`,query.split(/\s+/),{ shell: true }, (error, stdout, stderr) => {
   if (error) {
    console.warn(error);
   }
   resolve(stdout? stdout : stderr);
  });
 });
+};
+
+/******************************************************* Metadata *****************************************************/
+
+module.exports.getMetadata = async (imagePath) => {
+  return metadata.getMetadata(imagePath);
+};
+
+module.exports.getBasicInfo = async (imagePath) => {
+  return metadata.getBasicInfo(imagePath);
+};
+
+/******************************************************* Face Blur *****************************************************/
+
+module.exports.detectFaces = async (imagePath) => {
+  return faceblur.detectFaces(imagePath);
+};
+
+module.exports.applyBlur = async (imagePath, outputPath, faceIndices, blurAmount = 30) => {
+  return faceblur.applyBlur(imagePath, outputPath, faceIndices, blurAmount);
+};
+
+module.exports.getFaceThumbnails = async (imagePath) => {
+  return faceblur.getFaceThumbnails(imagePath);
+};
+
+module.exports.initFaceDetector = async () => {
+  return faceblur.initDetector();
 };

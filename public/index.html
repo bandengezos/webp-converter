@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebP Converter</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .header p {
+      opacity: 0.9;
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .tab {
+      flex: 1;
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      background: #f5f5f5;
+      border: none;
+      font-size: 1rem;
+      font-weight: 500;
+      color: #666;
+      transition: all 0.3s;
+    }
+    .tab.active {
+      background: white;
+      color: #667eea;
+      border-bottom: 3px solid #667eea;
+    }
+    .content {
+      padding: 30px;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .upload-area {
+      border: 3px dashed #ddd;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 20px;
+    }
+    .upload-area:hover {
+      border-color: #667eea;
+      background: #f8f9ff;
+    }
+    .upload-area.dragover {
+      border-color: #667eea;
+      background: #f0f3ff;
+    }
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+    .upload-text {
+      color: #666;
+      margin-bottom: 10px;
+    }
+    .upload-hint {
+      font-size: 0.85rem;
+      color: #999;
+    }
+    #fileInput {
+      display: none;
+    }
+    .preview-area {
+      margin: 20px 0;
+      display: none;
+    }
+    .preview-area.has-file {
+      display: block;
+    }
+    .preview-box {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    .preview-img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+    .preview-info {
+      flex: 1;
+    }
+    .preview-name {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    .preview-size {
+      color: #666;
+      font-size: 0.9rem;
+    }
+    .preview-remove {
+      padding: 8px 16px;
+      background: #ff4757;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .options {
+      margin: 20px 0;
+    }
+    .options label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+    }
+    .options select, .options input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .btn-convert {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .btn-convert:hover {
+      transform: translateY(-2px);
+    }
+    .btn-convert:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 8px;
+      display: none;
+    }
+    .result.success {
+      display: block;
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+    }
+    .result.error {
+      display: block;
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+    }
+    .result-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .result a {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #28a745;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+    .loading.active {
+      display: block;
+    }
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>WebP Converter</h1>
+      <p>Konversi gambar ke format WebP dan sebaliknya</p>
+    </div>
+    
+    <div class="tabs">
+      <button class="tab active" data-tab="to-webp">Gambar ke WebP</button>
+      <button class="tab" data-tab="bulk-to-webp">Bulk ke WebP</button>
+      <button class="tab" data-tab="from-webp">WebP ke Gambar</button>
+      <button class="tab" data-tab="gif-to-webp">GIF ke WebP</button>
+      <button class="tab" data-tab="metadata">Metadata</button>
+      <button class="tab" data-tab="face-blur">Face Blur</button>
+    </div>
+
+    <div class="content">
+      <div class="tab-content active" id="to-webp">
+        <div class="upload-area" id="uploadArea-to-webp">
+          <div class="upload-icon">📁</div>
+          <div class="upload-text">Klik atau drag file gambar di sini</div>
+          <div class="upload-hint">Mendukung: JPEG, PNG, BMP, TIFF</div>
+        </div>
+        <input type="file" id="fileInput-to-webp" accept="image/jpeg,image/png,image/bmp,image/tiff">
+        <div class="preview-area" id="preview-to-webp">
+          <div class="preview-box">
+            <img class="preview-img" id="previewImg-to-webp">
+            <div class="preview-info">
+              <div class="preview-name" id="previewName-to-webp"></div>
+              <div class="preview-size" id="previewSize-to-webp"></div>
+            </div>
+            <button class="preview-remove" onclick="clearFile('to-webp')">Hapus</button>
+          </div>
+        </div>
+        <div class="options">
+          <label>Quality (1-100)</label>
+          <input type="number" id="quality-to-webp" value="80" min="1" max="100">
+        </div>
+        <button class="btn-convert" onclick="convert('to-webp')">Konversi ke WebP</button>
+        <div class="result" id="result-to-webp"></div>
+      </div>
+
+      <div class="tab-content" id="bulk-to-webp">
+        <div class="upload-area" id="uploadArea-bulk-to-webp">
+          <div class="upload-icon">📂</div>
+          <div class="upload-text">Klik atau drag banyak file gambar di sini</div>
+          <div class="upload-hint">Mendukung: JPEG, PNG, BMP, TIFF (max 50 file)</div>
+        </div>
+        <input type="file" id="fileInput-bulk-to-webp" accept="image/jpeg,image/png,image/bmp,image/tiff" multiple>
+        <div class="preview-area" id="preview-bulk-to-webp">
+          <div class="preview-box" style="display:block;">
+            <div class="preview-name" id="previewName-bulk-to-webp"></div>
+            <div class="preview-size" id="previewSize-bulk-to-webp"></div>
+          </div>
+        </div>
+        <div class="options">
+          <label>Quality (1-100)</label>
+          <input type="number" id="quality-bulk-to-webp" value="80" min="1" max="100">
+        </div>
+        <button class="btn-convert" onclick="convertBulk()">Konversi Semua ke WebP</button>
+        <div class="result" id="result-bulk-to-webp"></div>
+      </div>
+
+      <div class="tab-content" id="from-webp">
+        <div class="upload-area" id="uploadArea-from-webp">
+          <div class="upload-icon">📁</div>
+          <div class="upload-text">Klik atau drag file WebP di sini</div>
+          <div class="upload-hint">Mendukung: WebP</div>
+        </div>
+        <input type="file" id="fileInput-from-webp" accept="image/webp">
+        <div class="preview-area" id="preview-from-webp">
+          <div class="preview-box">
+            <img class="preview-img" id="previewImg-from-webp">
+            <div class="preview-info">
+              <div class="preview-name" id="previewName-from-webp"></div>
+              <div class="preview-size" id="previewSize-from-webp"></div>
+            </div>
+            <button class="preview-remove" onclick="clearFile('from-webp')">Hapus</button>
+          </div>
+        </div>
+        <div class="options">
+          <label>Format Output</label>
+          <select id="format-from-webp">
+            <option value="jpeg">JPEG</option>
+            <option value="png">PNG</option>
+          </select>
+        </div>
+        <button class="btn-convert" onclick="convert('from-webp')">Konversi dari WebP</button>
+        <div class="result" id="result-from-webp"></div>
+      </div>
+
+      <div class="tab-content" id="gif-to-webp">
+        <div class="upload-area" id="uploadArea-gif-to-webp">
+          <div class="upload-icon">📁</div>
+          <div class="upload-text">Klik atau drag file GIF di sini</div>
+          <div class="upload-hint">Mendukung: GIF</div>
+        </div>
+        <input type="file" id="fileInput-gif-to-webp" accept="image/gif">
+        <div class="preview-area" id="preview-gif-to-webp">
+          <div class="preview-box">
+            <img class="preview-img" id="previewImg-gif-to-webp">
+            <div class="preview-info">
+              <div class="preview-name" id="previewName-gif-to-webp"></div>
+              <div class="preview-size" id="previewSize-gif-to-webp"></div>
+            </div>
+            <button class="preview-remove" onclick="clearFile('gif-to-webp')">Hapus</button>
+          </div>
+        </div>
+        <div class="options">
+          <label>Quality (1-100)</label>
+          <input type="number" id="quality-gif-to-webp" value="80" min="1" max="100">
+        </div>
+        <button class="btn-convert" onclick="convert('gif-to-webp')">Konversi GIF ke WebP</button>
+        <div class="result" id="result-gif-to-webp"></div>
+      </div>
+
+      <div class="tab-content" id="metadata">
+        <div class="upload-area" id="uploadArea-metadata">
+          <div class="upload-icon">📷</div>
+          <div class="upload-text">Klik atau drag file gambar di sini</div>
+          <div class="upload-hint">Mendukung: JPEG, PNG, WebP, TIFF</div>
+        </div>
+        <input type="file" id="fileInput-metadata" accept="image/jpeg,image/png,image/webp,image/tiff">
+        <div class="preview-area" id="preview-metadata">
+          <div class="preview-box">
+            <img class="preview-img" id="previewImg-metadata">
+            <div class="preview-info">
+              <div class="preview-name" id="previewName-metadata"></div>
+              <div class="preview-size" id="previewSize-metadata"></div>
+            </div>
+            <button class="preview-remove" onclick="clearFile('metadata')">Hapus</button>
+          </div>
+        </div>
+        <div class="options">
+          <label>Tipe Metadata</label>
+          <select id="type-metadata">
+            <option value="basic">Basic Info</option>
+            <option value="full">Full Metadata</option>
+          </select>
+        </div>
+        <button class="btn-convert" onclick="getMetadata()">Baca Metadata</button>
+        <div class="result" id="result-metadata"></div>
+      </div>
+
+      <div class="tab-content" id="face-blur">
+        <div class="upload-area" id="uploadArea-face-blur">
+          <div class="upload-icon">👤</div>
+          <div class="upload-text">Klik atau drag file gambar di sini</div>
+          <div class="upload-hint">Mendukung: JPEG, PNG, WebP</div>
+        </div>
+        <input type="file" id="fileInput-face-blur" accept="image/jpeg,image/png,image/webp">
+        <div class="preview-area" id="preview-face-blur">
+          <div class="preview-box">
+            <img class="preview-img" id="previewImg-face-blur">
+            <div class="preview-info">
+              <div class="preview-name" id="previewName-face-blur"></div>
+              <div class="preview-size" id="previewSize-face-blur"></div>
+            </div>
+            <button class="preview-remove" onclick="clearFile('face-blur')">Hapus</button>
+          </div>
+        </div>
+        
+        <div id="face-detection-result" style="display:none;">
+          <div class="options">
+            <label>Pilih Wajah yang akan di Blur:</label>
+            <div id="face-thumbnails" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;"></div>
+          </div>
+          <div class="options">
+            <label>Blur Amount (1-100)</label>
+            <input type="number" id="blur-amount" value="30" min="1" max="100">
+          </div>
+          <button class="btn-convert" onclick="applyFaceBlur()">Blur Wajah</button>
+        </div>
+        
+        <div class="result" id="result-face-blur"></div>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div>Mohon tunggu...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tabContents.forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    function setupUpload(tabId) {
+      const uploadArea = document.getElementById(`uploadArea-${tabId}`);
+      const fileInput = document.getElementById(`fileInput-${tabId}`);
+      const previewArea = document.getElementById(`preview-${tabId}`);
+      const previewImg = document.getElementById(`previewImg-${tabId}`);
+      const previewName = document.getElementById(`previewName-${tabId}`);
+      const previewSize = document.getElementById(`previewSize-${tabId}`);
+
+      uploadArea.addEventListener('click', () => fileInput.click());
+      
+      uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+      });
+      
+      uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+      });
+      
+      uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+          fileInput.files = e.dataTransfer.files;
+          showPreview(fileInput.files[0], tabId);
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+          showPreview(e.target.files[0], tabId);
+        }
+      });
+    }
+
+    function showPreview(file, tabId) {
+      const previewArea = document.getElementById(`preview-${tabId}`);
+      const previewImg = document.getElementById(`previewImg-${tabId}`);
+      const previewName = document.getElementById(`previewName-${tabId}`);
+      const previewSize = document.getElementById(`previewSize-${tabId}`);
+
+      previewName.textContent = file.name;
+      previewSize.textContent = formatFileSize(file.size);
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+      
+      previewArea.classList.add('has-file');
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function clearFile(tabId) {
+      document.getElementById(`fileInput-${tabId}`).value = '';
+      document.getElementById(`preview-${tabId}`).classList.remove('has-file');
+      document.getElementById(`result-${tabId}`).style.display = 'none';
+    }
+
+    async function convert(tabId) {
+      const fileInput = document.getElementById(`fileInput-${tabId}`);
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        alert('Silakan pilih file terlebih dahulu');
+        return;
+      }
+
+      const loading = document.getElementById('loading');
+      const resultDiv = document.getElementById(`result-${tabId}`);
+      
+      loading.classList.add('active');
+      resultDiv.style.display = 'none';
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      let apiEndpoint = '';
+      
+      if (tabId === 'to-webp') {
+        apiEndpoint = '/api/convert-to-webp';
+        formData.append('quality', document.getElementById('quality-to-webp').value);
+      } else if (tabId === 'from-webp') {
+        apiEndpoint = '/api/convert-from-webp';
+        formData.append('format', document.getElementById('format-from-webp').value);
+      } else if (tabId === 'gif-to-webp') {
+        apiEndpoint = '/api/gif-to-webp';
+        formData.append('quality', document.getElementById('quality-gif-to-webp').value);
+      }
+
+      try {
+        const response = await fetch(apiEndpoint, {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        loading.classList.remove('active');
+        
+        if (data.success) {
+          resultDiv.className = 'result success';
+          resultDiv.innerHTML = `
+            <div class="result-title">Konversi berhasil!</div>
+            <a href="${data.outputUrl}" download>Download Gambar</a>
+          `;
+        } else {
+          resultDiv.className = 'result error';
+          resultDiv.innerHTML = `<div class="result-title">Error: ${data.error}</div>`;
+        }
+        
+        resultDiv.style.display = 'block';
+      } catch (error) {
+        loading.classList.remove('active');
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `<div class="result-title">Error: ${error.message}</div>`;
+        resultDiv.style.display = 'block';
+      }
+    }
+
+    setupUpload('to-webp');
+    setupUpload('bulk-to-webp');
+    setupUpload('from-webp');
+    setupUpload('gif-to-webp');
+
+    function setupBulkUpload(tabId) {
+      const uploadArea = document.getElementById(`uploadArea-${tabId}`);
+      const fileInput = document.getElementById(`fileInput-${tabId}`);
+      const previewArea = document.getElementById(`preview-${tabId}`);
+      const previewName = document.getElementById(`previewName-${tabId}`);
+      const previewSize = document.getElementById(`previewSize-${tabId}`);
+
+      uploadArea.addEventListener('click', () => fileInput.click());
+      
+      uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+      });
+      
+      uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+      });
+      
+      uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+          fileInput.files = e.dataTransfer.files;
+          showBulkPreview(fileInput.files, tabId);
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+          showBulkPreview(e.target.files, tabId);
+        }
+      });
+    }
+
+    function showBulkPreview(files, tabId) {
+      const previewArea = document.getElementById(`preview-${tabId}`);
+      const previewName = document.getElementById(`previewName-${tabId}`);
+      const previewSize = document.getElementById(`previewSize-${tabId}`);
+
+      previewName.textContent = `${files.length} file dipilih`;
+      
+      let totalSize = 0;
+      for (let i = 0; i < files.length; i++) {
+        totalSize += files[i].size;
+      }
+      previewSize.textContent = formatFileSize(totalSize);
+      
+      previewArea.classList.add('has-file');
+    }
+
+    function clearBulkFile(tabId) {
+      document.getElementById(`fileInput-${tabId}`).value = '';
+      document.getElementById(`preview-${tabId}`).classList.remove('has-file');
+      document.getElementById(`result-${tabId}`).style.display = 'none';
+    }
+
+    async function convertBulk() {
+      const fileInput = document.getElementById('fileInput-bulk-to-webp');
+      const files = fileInput.files;
+      
+      if (!files || files.length === 0) {
+        alert('Silakan pilih file terlebih dahulu');
+        return;
+      }
+
+      const loading = document.getElementById('loading');
+      const resultDiv = document.getElementById('result-bulk-to-webp');
+      
+      loading.classList.add('active');
+      resultDiv.style.display = 'none';
+
+      const formData = new FormData();
+      for (let i = 0; i < files.length; i++) {
+        formData.append('images', files[i]);
+      }
+      formData.append('quality', document.getElementById('quality-bulk-to-webp').value);
+
+      try {
+        const response = await fetch('/api/bulk-convert-to-webp', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        loading.classList.remove('active');
+        
+        if (data.success) {
+          const successCount = data.results.filter(r => r.success).length;
+          const failCount = data.results.filter(r => !r.success).length;
+          
+          let html = `<div class="result-title">Konversi selesai! ${successCount} berhasil, ${failCount} gagal</div>`;
+          html += '<div style="margin-top:15px;">';
+          
+          data.results.forEach((result, index) => {
+            if (result.success) {
+              html += `<a href="${result.outputUrl}" download="${result.originalName.replace(/\.[^.]+$/, '')}.webp" style="display:block;margin:5px 0;padding:8px 12px;background:#28a745;text-decoration:none;color:white;border-radius:4px;font-size:0.9rem;">${result.originalName} ✓</a>`;
+            } else {
+              html += `<div style="padding:8px 12px;margin:5px 0;background:#f8d7da;border-radius:4px;font-size:0.9rem;">${result.originalName} ✗ (${result.error})</div>`;
+            }
+          });
+          
+          html += '</div>';
+          
+          resultDiv.className = 'result success';
+          resultDiv.innerHTML = html;
+        } else {
+          resultDiv.className = 'result error';
+          resultDiv.innerHTML = `<div class="result-title">Error: ${data.error}</div>`;
+        }
+        
+        resultDiv.style.display = 'block';
+      } catch (error) {
+        loading.classList.remove('active');
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `<div class="result-title">Error: ${error.message}</div>`;
+        resultDiv.style.display = 'block';
+      }
+    }
+
+    setupBulkUpload('bulk-to-webp');
+    setupUpload('metadata');
+    setupUpload('face-blur');
+
+    let currentFaces = [];
+    let detectedImageFile = null;
+
+    async function getMetadata() {
+      const fileInput = document.getElementById('fileInput-metadata');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        alert('Silakan pilih file terlebih dahulu');
+        return;
+      }
+
+      const loading = document.getElementById('loading');
+      const resultDiv = document.getElementById('result-metadata');
+      
+      loading.classList.add('active');
+      resultDiv.style.display = 'none';
+
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('type', document.getElementById('type-metadata').value);
+
+      try {
+        const response = await fetch('/api/metadata', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        loading.classList.remove('active');
+        
+        if (data.success) {
+          let html = '<div class="result-title">Metadata Gambar</div>';
+          html += '<div style="max-height:400px;overflow-y:auto;background:#f8f9fa;padding:15px;border-radius:8px;text-align:left;font-size:0.9rem;">';
+          
+          const metadata = data.metadata;
+          for (const [key, value] of Object.entries(metadata)) {
+            if (value && typeof value === 'object') {
+              html += `<div style="margin-bottom:10px;"><strong>${key}:</strong>`;
+              for (const [subKey, subValue] of Object.entries(value)) {
+                if (subValue) {
+                  html += `<div style="padding-left:15px;color:#555;">${subKey}: ${subValue}</div>`;
+                }
+              }
+              html += '</div>';
+            } else if (value) {
+              html += `<div style="margin-bottom:5px;"><strong>${key}:</strong> ${value}</div>`;
+            }
+          }
+          html += '</div>';
+          
+          resultDiv.className = 'result success';
+          resultDiv.innerHTML = html;
+        } else {
+          resultDiv.className = 'result error';
+          resultDiv.innerHTML = `<div class="result-title">Error: ${data.error}</div>`;
+        }
+        
+        resultDiv.style.display = 'block';
+      } catch (error) {
+        loading.classList.remove('active');
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `<div class="result-title">Error: ${error.message}</div>`;
+        resultDiv.style.display = 'block';
+      }
+    }
+
+    document.getElementById('fileInput-face-blur').addEventListener('change', async (e) => {
+      if (e.target.files.length) {
+        const file = e.target.files[0];
+        detectedImageFile = file;
+        showPreview(file, 'face-blur');
+        
+        const loading = document.getElementById('loading');
+        loading.classList.add('active');
+        
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+          const response = await fetch('/api/detect-faces', {
+            method: 'POST',
+            body: formData
+          });
+          
+          const data = await response.json();
+          loading.classList.remove('active');
+          
+          if (data.success) {
+            currentFaces = data.faces;
+            const faceThumbnails = document.getElementById('face-thumbnails');
+            const detectionResult = document.getElementById('face-detection-result');
+            
+            if (data.faces.length === 0) {
+              detectionResult.style.display = 'none';
+              alert('Tidak ada wajah yang terdeteksi dalam gambar ini');
+            } else {
+              detectionResult.style.display = 'block';
+              faceThumbnails.innerHTML = '';
+              
+              data.thumbnails.forEach((thumb, index) => {
+                const div = document.createElement('div');
+                div.style.cssText = 'text-align:center;cursor:pointer;padding:5px;border:2px solid #ddd;border-radius:8px;';
+                div.innerHTML = `
+                  <img src="${thumb.base64}" style="width:80px;height:80px;object-fit:cover;border-radius:4px;">
+                  <div style="font-size:0.8rem;margin-top:5px;">
+                    <input type="checkbox" value="${index}" checked> Wajah ${index + 1}
+                  </div>
+                `;
+                faceThumbnails.appendChild(div);
+              });
+            }
+          } else {
+            alert('Error: ' + data.error);
+          }
+        } catch (error) {
+          loading.classList.remove('active');
+          alert('Error: ' + error.message);
+        }
+      }
+    });
+
+    async function applyFaceBlur() {
+      const fileInput = document.getElementById('fileInput-face-blur');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        alert('Silakan pilih file terlebih dahulu');
+        return;
+      }
+
+      const checkboxes = document.querySelectorAll('#face-thumbnails input[type="checkbox"]:checked');
+      const faceIndices = Array.from(checkboxes).map(cb => parseInt(cb.value));
+      
+      if (faceIndices.length === 0) {
+        alert('Silakan pilih setidaknya satu wajah untuk di blur');
+        return;
+      }
+
+      const loading = document.getElementById('loading');
+      const resultDiv = document.getElementById('result-face-blur');
+      
+      loading.classList.add('active');
+      resultDiv.style.display = 'none';
+
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('faceIndices', JSON.stringify(faceIndices));
+      formData.append('blurAmount', document.getElementById('blur-amount').value);
+
+      try {
+        const response = await fetch('/api/blur-faces', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        loading.classList.remove('active');
+        
+        if (data.success) {
+          resultDiv.className = 'result success';
+          resultDiv.innerHTML = `
+            <div class="result-title">Berhasil! ${data.blurredFaces.length} wajah di blur</div>
+            <a href="${data.outputUrl}" download>Download Gambar</a>
+          `;
+        } else {
+          resultDiv.className = 'result error';
+          resultDiv.innerHTML = `<div class="result-title">Error: ${data.error}</div>`;
+        }
+        
+        resultDiv.style.display = 'block';
+      } catch (error) {
+        loading.classList.remove('active');
+        resultDiv.className = 'result error';
+        resultDiv.innerHTML = `<div class="result-title">Error: ${error.message}</div>`;
+        resultDiv.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>

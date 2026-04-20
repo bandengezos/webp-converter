@@ -38,5 +38,19 @@
     "temp/"
   ],
   "author": "kaqiinono",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@tensorflow-models/face-detection": "^1.0.3",
+    "@tensorflow/tfjs-node": "^4.22.0",
+    "canvas": "^3.2.3",
+    "cors": "^2.8.6",
+    "exifreader": "^4.38.1",
+    "express": "^5.2.1",
+    "multer": "^2.1.1",
+    "sharp": "^0.34.5",
+    "webp-converter": "^2.3.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
 }

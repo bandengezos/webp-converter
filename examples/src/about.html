@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tentang - Ujang Laser Converter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .about-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding-bottom: 4rem;
+    }
+
+    .about-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 3rem;
+      backdrop-filter: blur(20px);
+    }
+
+    .about-card h2 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(90deg, var(--primary-green), var(--light-green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .about-card p {
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+      font-size: 1.05rem;
+    }
+
+    .about-features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .about-feature {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .about-feature:hover {
+      background: rgba(74, 222, 128, 0.1);
+      transform: translateY(-3px);
+    }
+
+    .about-feature-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .about-feature h3 {
+      font-size: 1.15rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .about-feature p {
+      font-size: 0.9rem;
+      margin-bottom: 0;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .stats-section {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      margin: 3rem 0;
+      text-align: center;
+    }
+
+    .stat-item {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 2rem 1rem;
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary-green);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .stats-section {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <span class="logo-text">Ujang Laser Converter</span>
+    </div>
+    <nav>
+      <a href="index.html">Beranda</a>
+      <a href="converter.html">Konverter</a>
+      <a href="about.html" class="active">Tentang</a>
+      <a href="contact.html">Kontak</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Tentang<br><span>Kami</span></h1>
+      <p>Kami adalah penyedia layanan konversi file profesional yang terpercaya.</p>
+    </section>
+
+    <section class="about-section">
+      <div class="about-card">
+        <h2>Siapa Kami?</h2>
+        <p>Ujang Laser Converter adalah perusahaan teknologi yangfocused pada penyediaan solusi konversi file digital. Dengan pengalaman bertahun-tahun di industri, kami berkomitmen untuk memberikan layanan terbaik kepada pelanggan kami.</p>
+        <p>Kami memahami bahwa dalam era digital, kebutuhan untuk mengkonversi file dari satu format ke format lainnya menjadi semakin penting. Oleh karena itu, kami hadirkan solusi yang mudah, cepat, dan aman untuk memenuhi kebutuhan tersebut.</p>
+        
+        <div class="stats-section">
+          <div class="stat-item">
+            <span class="stat-number">5+</span>
+            <span class="stat-label">Tahun Pengalaman</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">50K+</span>
+            <span class="stat-label">Pelanggan Puas</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">100K+</span>
+            <span class="stat-label">File Dikonversi</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">99%</span>
+            <span class="stat-label">Tingkat Kepuasan</span>
+          </div>
+        </div>
+
+        <h2>Visi Kami</h2>
+        <p>Menjadi solusi konversi file digital terdepan di Indonesia dengan menghadirkan teknologi terkini dan pelayanan terbaik untuk mendukung produktivitas bisnis dan personal.</p>
+
+        <h2>Misi Kami</h2>
+        <div class="about-features">
+          <div class="about-feature">
+            <div class="about-feature-icon">🎯</div>
+            <h3>Mutu Terjamin</h3>
+            <p>Menyediakan hasil konversi dengan kualitas tinggi</p>
+          </div>
+          <div class="about-feature">
+            <div class="about-feature-icon">⚡</div>
+            <h3>Cepat & Efisien</h3>
+            <p>Proses konversi yang cepat dan akurat</p>
+          </div>
+          <div class="about-feature">
+            <div class="about-feature-icon">🔒</div>
+            <h3>Aman & Terpercaya</h3>
+            <p>Perlindungan data dan privasi maksimal</p>
+          </div>
+          <div class="about-feature">
+            <div class="about-feature-icon">💯</div>
+            <h3>Pelayanan Prima</h3>
+            <p>Dukungan pelanggan 24/7 yang responsif</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-logo">
+        <div class="logo-icon">⚡</div>
+        <span class="logo-text">Ujang Laser Converter</span>
+      </div>
+      <div class="footer-links">
+        <h4>Tautan Cepat</h4>
+        <a href="index.html">Beranda</a>
+        <a href="converter.html">Konverter</a>
+        <a href="about.html">Tentang</a>
+        <a href="contact.html">Kontak</a>
+      </div>
+      <div class="footer-links">
+        <h4>Layanan</h4>
+        <a href="converter.html">Konversi WebP</a>
+        <a href="converter.html">Kompresi Gambar</a>
+        <a href="converter.html">Konversi PDF</a>
+      </div>
+      <div class="footer-contact">
+        <h4>Kontak</h4>
+        <p>📧 info@ujanglaser.com</p>
+        <p>📞 +62 123 4567 890</p>
+        <p>📍 Jakarta, Indonesia</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Ujang Laser Converter. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+</html>
